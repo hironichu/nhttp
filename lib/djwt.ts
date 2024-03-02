@@ -1,8 +1,4 @@
-import {
-	decode,
-	verify,
-	create,
-  } from "https://deno.land/x/djwt@v3.0.1/mod.ts";
+import { create, decode, verify } from "https://deno.land/x/djwt@v3.0.1/mod.ts";
 import { Handler, HttpError, RequestEvent, TObject, TRet } from "./deps.ts";
 import { NextFunction } from "../mod.ts";
 import { joinHandlers, TDecorator } from "./controller.ts";
@@ -23,9 +19,19 @@ class UnauthorizedError extends HttpError {
     super(401, message);
   }
 }
-type TAlgorithm = "HS512" | "HS384" | "HS256" | "RS512" | "RS384" | "RS256" | "ES512" | "ES384" | "ES256" | "PS512" | "PS384" | "PS256";
-
-
+type TAlgorithm =
+  | "HS512"
+  | "HS384"
+  | "HS256"
+  | "RS512"
+  | "RS384"
+  | "RS256"
+  | "ES512"
+  | "ES384"
+  | "ES256"
+  | "PS512"
+  | "PS384"
+  | "PS256";
 
 type TOptions = {
   secret: CryptoKey;
@@ -57,7 +63,6 @@ type TOptions = {
 export const jwt = (
   secretOrOptions: CryptoKey | TOptions,
 ): Handler | Handler[] => {
-
   const opts = secretOrOptions instanceof CryptoKey
     ? { secret: secretOrOptions }
     : secretOrOptions;
@@ -117,14 +122,12 @@ export const jwt = (
     rev[prop] = {};
     let decode: TRet;
     try {
-
-      decode = await verify(token, opts.secret,{
-		ignoreNbf: opts.ignoreNbf,
-		ignoreExp: opts.ignoreExp,
-	  });
+      decode = await verify(token, opts.secret, {
+        ignoreNbf: opts.ignoreNbf,
+        ignoreExp: opts.ignoreExp,
+      });
 
       rev[prop] = decode;
-
     } catch (err) {
       const e = new UnauthorizedError(err.message ?? "Invalid token");
       if (
@@ -132,8 +135,8 @@ export const jwt = (
       ) {
         return await opts.onExpired(e, rev, next);
       } else if (typeof opts.onError === "function") {
-		return await opts.onError(e, rev, next);
-	  } else {
+        return await opts.onError(e, rev, next);
+      } else {
         throw e;
       }
     }
